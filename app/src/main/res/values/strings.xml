@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Catan Helper</string>
+    <string name="action_settings">Settings</string>
+    <string name="main_text">Welcome to Catan Helper</string>
+    <string name="four_player">Four Player</string>
+    <string name="six_player">Six Player</string>
+    <string name="activity_play">Game Play</string>
+    <string name="player_1">Player 1</string>
+    <string name="player_2">Player 2</string>
+    <string name="player_6">Player 6</string>
+    <string name="player_5">Player 5</string>
+    <string name="player_4">Player 4</string>
+    <string name="player_3">Player 3</string>
+    <string name="num_rolls">How many dice rolls per turn? </string>
+    <string name="start">Let\'s Begin!</string>
+    <string name="select_players">How many are playing? </string>
+    <string name="classic">Classic</string>
+    <string name="cities_and_knights">Cities &amp; Knights</string>
+</resources>

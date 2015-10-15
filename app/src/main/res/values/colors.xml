@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="orange">#ff7c24</color>
+    <color name="green">#409b1c</color>
+    <color name="blue">#1566e9</color>
+    <color name="white">#ffffff</color>
+    <color name="brown">#693409</color>
+    <color name="red">#ea0505</color>
+    <color name="bricks">#ff6060</color>
+    <color name="grain">#fffb8f</color>
+    <color name="wool">#99ff27</color>
+    <color name="lumber">#268427</color>
+    <color name="ore">#787777</color>
+    <color name="desert">#ffffff</color>
+    <color name="abbey">#0f7000</color>
+    <color name="market">#cace00</color>
+    <color name="townhall">#001ee4</color>
+    <color name="dice_red">#ed0000</color>
+    <color name="barbarian">#848484</color>
+    <color name="unselected">#000000</color>
+</resources>
