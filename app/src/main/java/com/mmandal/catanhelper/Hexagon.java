@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.view.View;
 
 /**
@@ -104,7 +105,7 @@ class Hexagon extends View {
         bgPaint.setColor(Color.WHITE);
         canvas.drawPath(boundary_, bgPaint);
         canvas.drawPath(boundary_, resource_.getFillPaint(false));
-        canvas.drawPath(boundary_, resource_.getBorderPaint(false));
+        canvas.drawPath(boundary_, resource_.getBorderPaint());
         canvas.drawBitmap(resource_.getIcon(), null, iconBounds_, new Paint());
         canvas.drawText(resource_.getTag().label, textCenter_.x + 3, textCenter_.y + 3, resource_.getShadowPaint(resourceGenerated_));
         canvas.drawText(resource_.getTag().label, textCenter_.x, textCenter_.y, resource_.getTextPaint(resourceGenerated_));
@@ -114,13 +115,17 @@ class Hexagon extends View {
         Paint bgPaint = new Paint();
         bgPaint.setColor(Color.WHITE);
         canvas.drawPath(boundary_, bgPaint);
-        canvas.drawPath(boundary_, resource_.getFillPaint(resourceGenerated_));
-        canvas.drawPath(boundary_, resource_.getBorderPaint(resourceGenerated_));
         if (resourceGenerated_) {
+            canvas.drawPath(boundary_, resource_.getFillPaint(true));
+            canvas.drawPath(boundary_, resource_.getBorderPaint());
+            canvas.drawOval(new RectF(iconBounds_), resource_.getOvalPaint2());
+            canvas.drawOval(new RectF(iconBounds_), resource_.getOvalPaint());
             canvas.drawBitmap(resource_.getIcon(), null, iconBounds_, new Paint());
         } else {
-            canvas.drawText(resource_.getTag().label, textCenter_.x + 3, textCenter_.y + 3, resource_.getShadowPaint(resourceGenerated_));
-            canvas.drawText(resource_.getTag().label, textCenter_.x, textCenter_.y, resource_.getTextPaint(resourceGenerated_));
+            canvas.drawPath(boundary_, resource_.getFillPaint(false));
+            canvas.drawPath(boundary_, resource_.getBorderPaint());
+            canvas.drawText(resource_.getTag().label, textCenter_.x + 3, textCenter_.y + 3, resource_.getShadowPaint(false));
+            canvas.drawText(resource_.getTag().label, textCenter_.x, textCenter_.y, resource_.getTextPaint(false));
         }
     }
 

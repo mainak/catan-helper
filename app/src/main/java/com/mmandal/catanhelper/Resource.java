@@ -44,16 +44,29 @@ class Resource {
         return fill;
     }
 
-    Paint getBorderPaint(boolean resourceGenerated) {
+    Paint getBorderPaint() {
         Paint border = new Paint();
         border.setStyle(Paint.Style.STROKE);
-        if (resourceGenerated) {
-            border.setStrokeWidth(Utility.fromDp(displayMetrics_, 5));
-            border.setColor(color_);
-        } else {
-            border.setStrokeWidth(Utility.fromDp(displayMetrics_, 2));
-            border.setColor(Color.BLACK);
-        }
+        border.setStrokeWidth(Utility.fromDp(displayMetrics_, 2));
+        border.setColor(Color.BLACK);
+        border.setAntiAlias(true);
+        return border;
+    }
+
+    Paint getOvalPaint() {
+        Paint border = new Paint();
+        border.setStyle(Paint.Style.STROKE);
+        border.setStrokeWidth(Utility.fromDp(displayMetrics_, 2));
+        border.setColor(color_);
+        border.setAntiAlias(true);
+        return border;
+    }
+
+    Paint getOvalPaint2() {
+        Paint border = new Paint();
+        border.setStyle(Paint.Style.STROKE);
+        border.setStrokeWidth(Utility.fromDp(displayMetrics_, 4));
+        border.setColor(Color.BLACK);
         border.setAntiAlias(true);
         return border;
     }

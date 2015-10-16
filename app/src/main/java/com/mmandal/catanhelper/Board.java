@@ -61,6 +61,7 @@ abstract class Board extends View {
         for (Hexagon cell : cells_) {
             if (cell.getDiceFace() == 7 && cell.resourceGenerated()) {
                 dialogs.add(new RobberActivatedDialog());
+                break;
             }
         }
         return dialogs;
