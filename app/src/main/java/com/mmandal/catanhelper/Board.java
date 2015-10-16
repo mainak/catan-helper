@@ -1,10 +1,15 @@
 package com.mmandal.catanhelper;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -18,6 +23,18 @@ import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
+
+@SuppressLint("ValidFragment")
+class RobberActivatedDialog extends DialogFragment {
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.dialog_robber)
+                .setNeutralButton(R.string.dialog_robber_ok, null);
+        return builder.create();
+    }
+}
+
 /**
  * Created by mmandal on 10/3/15.
  */
@@ -26,25 +43,27 @@ abstract class Board extends View {
 
     protected final Random rand_ = new Random();
     protected final PlayerListView players_;
-    private final Expansion expansion_;
     protected final int maxNumRolls_;
+    private final Expansion expansion_;
     protected List<Hexagon> cells_ = new Vector<Hexagon>();
     private int numTurns_ = 0;
     private LinkedList<Update> pastUpdates_ = new LinkedList<Update>();
-
-    protected static class Update {
-        int[] numRolls = new int[13];
-
-        public void copy(Update bUpd) {
-            numRolls = bUpd.numRolls;
-        }
-    }
 
     Board(Context ctxt, List<Integer> playerColors, int maxNumRolls, Expansion expansion) {
         super(ctxt);
         players_ = new PlayerListView(getContext(), playerColors);
         expansion_ = expansion;
         maxNumRolls_ = maxNumRolls;
+    }
+
+    public List<DialogFragment> getSpecialEvents() {
+        List<DialogFragment> dialogs = expansion_.getSpecialEvents();
+        for (Hexagon cell : cells_) {
+            if (cell.getDiceFace() == 7 && cell.resourceGenerated()) {
+                dialogs.add(new RobberActivatedDialog());
+            }
+        }
+        return dialogs;
     }
 
     protected float fromDp(float dpSize) {
@@ -83,7 +102,7 @@ abstract class Board extends View {
         ++numTurns_;
         players_.forward();
         for (Hexagon cell : cells_) {
-            cell.add(update.numRolls[cell.getOutcome()]);
+            cell.add(update.numRolls[cell.getDiceFace()]);
         }
         expansion_.apply(update);
         pastUpdates_.push(update);
@@ -93,7 +112,7 @@ abstract class Board extends View {
         Update update = pastUpdates_.pop();
         expansion_.apply(pastUpdates_.peek());
         for (Hexagon cell : cells_) {
-            cell.subtract(update.numRolls[cell.getOutcome()]);
+            cell.subtract(update.numRolls[cell.getDiceFace()]);
         }
         players_.backward();
         --numTurns_;
@@ -147,6 +166,14 @@ abstract class Board extends View {
     Resource createCatanRes(Bitmap icon, int colorId) {
         return new Resource(getResources().getDisplayMetrics(), icon, getColor(colorId));
     }
+
+    protected static class Update {
+        int[] numRolls = new int[13];
+
+        public void copy(Update bUpd) {
+            numRolls = bUpd.numRolls;
+        }
+    }
 }
 
 class FourPlayerBoard extends Board {
@@ -158,6 +185,10 @@ class FourPlayerBoard extends Board {
 
     @Override
     public void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        left += (int) fromDp(10);
+        top += (int) fromDp(10);
+        right -= (int) fromDp(10);
+        bottom -= (int) fromDp(10);
         super.onLayout(changed, left, top, right, bottom);
 
         // height = 8 * edge
@@ -233,7 +264,7 @@ class FourPlayerBoard extends Board {
         resources.add(createCatanRes(desert, R.color.desert));
         Collections.shuffle(resources, rand_);
 
-        Vector<Tag> outcomes = new Vector<Tag>(Arrays.asList(
+        Vector<Tag> diceFaces = new Vector<Tag>(Arrays.asList(
                 new Tag(5, "A"),
                 new Tag(2, "B"),
                 new Tag(6, "C"),
@@ -252,12 +283,12 @@ class FourPlayerBoard extends Board {
                 new Tag(6, "P"),
                 new Tag(3, "Q"),
                 new Tag(11, "R")));
-        Iterator<Tag> outcomesIter = outcomes.iterator();
+        Iterator<Tag> diceFacesIter = diceFaces.iterator();
 
         for (Resource resource : resources) {
             Tag tag = new Tag(7, "");
             if (!(resource.getColor() == getColor(R.color.desert))) {
-                tag = outcomesIter.next();
+                tag = diceFacesIter.next();
             }
             resource.setTag(tag);
             cells_.add(new Hexagon(getContext(), maxNumRolls_, resource));
@@ -275,6 +306,10 @@ class SixPlayerBoard extends Board {
 
     @Override
     public void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        left += (int) fromDp(10);
+        top += (int) fromDp(10);
+        right -= (int) fromDp(10);
+        bottom -= (int) fromDp(10);
         super.onLayout(changed, left, top, right, bottom);
         // perp = edge * cos(pi/6)
         // height = 12 * perp
@@ -366,7 +401,7 @@ class SixPlayerBoard extends Board {
         }
         Collections.shuffle(resources, rand_);
 
-        Vector<Tag> outcomes = new Vector<Tag>(Arrays.asList(
+        Vector<Tag> diceFaces = new Vector<Tag>(Arrays.asList(
                 new Tag(2, "A"),
                 new Tag(5, "B"),
                 new Tag(4, "C"),
@@ -395,12 +430,12 @@ class SixPlayerBoard extends Board {
                 new Tag(3, "Za"),
                 new Tag(2, "Zb"),
                 new Tag(6, "Zc")));
-        Iterator<Tag> outcomesIter = outcomes.iterator();
+        Iterator<Tag> diceFacesIter = diceFaces.iterator();
 
         for (Resource resource : resources) {
             Tag tag = new Tag(7, "");
             if (!(resource.getColor() == getColor(R.color.desert))) {
-                tag = outcomesIter.next();
+                tag = diceFacesIter.next();
             }
             resource.setTag(tag);
             cells_.add(new Hexagon(getContext(), maxNumRolls_, resource));

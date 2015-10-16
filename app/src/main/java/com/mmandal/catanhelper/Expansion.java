@@ -1,14 +1,17 @@
 package com.mmandal.catanhelper;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Bundle;
 import android.view.View;
 
 import java.util.LinkedList;
@@ -27,6 +30,8 @@ abstract class Expansion extends View {
     abstract void apply(Board.Update update);
 
     abstract Board.Update genNextUpdate(Board.Update update);
+
+    public abstract List<DialogFragment> getSpecialEvents();
 }
 
 class DefaultExpansion extends Expansion {
@@ -43,6 +48,23 @@ class DefaultExpansion extends Expansion {
     public Board.Update genNextUpdate(Board.Update update) {
         return update;
     }
+
+    @Override
+    public List<DialogFragment> getSpecialEvents() {
+        return new LinkedList<DialogFragment>();
+    }
+}
+
+
+@SuppressLint("ValidFragment")
+class BarbarianAttackDialog extends DialogFragment {
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.dialog_barbarian)
+                .setNeutralButton(R.string.dialog_barbarian_ok, null);
+        return builder.create();
+    }
 }
 
 class CitiesAndKnights extends Expansion {
@@ -54,20 +76,8 @@ class CitiesAndKnights extends Expansion {
     private final Bitmap fire_;
 
     private final Bitmap ship_;
-
-    private enum RollType {
-        MARKET,
-        TOWNHALL,
-        ABBEY,
-        BARBARIAN
-    }
-
-    private static class Update extends Board.Update {
-        RollType roll;
-        int number;
-        int shipPos;
-    }
-
+    List<List<PointF>> diceFaces_ = new Vector<List<PointF>>();
+    Update currState_ = null;
     private RectF dice_;
 
     private RectF market_;
@@ -77,10 +87,6 @@ class CitiesAndKnights extends Expansion {
     private RectF abbey_;
 
     private List<RectF> barbarians_ = new Vector<RectF>();
-
-    List<List<PointF>> diceFaces_ = new Vector<List<PointF>>();
-
-    Update currState_ = null;
 
     CitiesAndKnights(Context context) {
         super(context);
@@ -93,7 +99,7 @@ class CitiesAndKnights extends Expansion {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         float width = right - left;
         float height = bottom - top;
-        float edge = Math.min((float) height / 2, Utility.fromDp(getResources().getDisplayMetrics(), 30f));
+        float edge = Math.min(height / 2, Utility.fromDp(getResources().getDisplayMetrics(), 30f));
         PointF center = new PointF(left + width / 2, top + height / 2);
 
         PointF bottomLineCenter = new PointF(center.x, bottom - edge / 2);
@@ -154,10 +160,10 @@ class CitiesAndKnights extends Expansion {
 
         face = new Vector<PointF>();
         face.add(new PointF(dice_.centerX() - dEdge / 2, dice_.centerY() - dEdge / 2));
-        face.add(new PointF(dice_.centerX(),             dice_.centerY() - dEdge / 2));
+        face.add(new PointF(dice_.centerX(), dice_.centerY() - dEdge / 2));
         face.add(new PointF(dice_.centerX() + dEdge / 2, dice_.centerY() - dEdge / 2));
         face.add(new PointF(dice_.centerX() - dEdge / 2, dice_.centerY() + dEdge / 2));
-        face.add(new PointF(dice_.centerX(),             dice_.centerY() + dEdge / 2));
+        face.add(new PointF(dice_.centerX(), dice_.centerY() + dEdge / 2));
         face.add(new PointF(dice_.centerX() + dEdge / 2, dice_.centerY() + dEdge / 2));
         diceFaces_.add(face);
     }
@@ -215,8 +221,8 @@ class CitiesAndKnights extends Expansion {
     private void drawDice(Canvas canvas, int number, boolean visible) {
         Paint fill = new Paint();
         fill.setColor(visible
-            ? Utility.getColor(getResources(), R.color.dice_red)
-            : Color.BLACK);
+                ? Utility.getColor(getResources(), R.color.dice_red)
+                : Color.BLACK);
         fill.setStyle(Paint.Style.FILL);
         canvas.drawRoundRect(dice_,
                 Utility.fromDp(getResources().getDisplayMetrics(), 2),
@@ -297,5 +303,27 @@ class CitiesAndKnights extends Expansion {
             update.shipPos += 1;
         }
         return update;
+    }
+
+    @Override
+    public List<DialogFragment> getSpecialEvents() {
+        List<DialogFragment> dialogs = new LinkedList<DialogFragment>();
+        if (barbarians_.size() - 1 == currState_.shipPos) {
+            dialogs.add(new BarbarianAttackDialog());
+        }
+        return dialogs;
+    }
+
+    private enum RollType {
+        MARKET,
+        TOWNHALL,
+        ABBEY,
+        BARBARIAN
+    }
+
+    private static class Update extends Board.Update {
+        RollType roll;
+        int number;
+        int shipPos;
     }
 }

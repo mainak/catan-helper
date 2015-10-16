@@ -1,8 +1,11 @@
 package com.mmandal.catanhelper;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,12 +20,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
-import java.util.concurrent.Semaphore;
 
 class OrderedColor implements Comparable<OrderedColor> {
 
@@ -153,7 +154,21 @@ class PlayerOption implements Spinner.OnItemSelectedListener {
     }
 
     Integer getColor() {
-        return ((OrderedColor) ((ColorListAdapter) spinner_.getAdapter()).getItem(spinner_.getSelectedItemPosition())).color;
+        return ((OrderedColor) spinner_.getAdapter().getItem(spinner_.getSelectedItemPosition())).color;
+    }
+}
+
+@SuppressLint("ValidFragment")
+class ExplainGameDialog extends DialogFragment {
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.dialoag_explain_title)
+                .setMessage(R.string.dialog_explain_steps)
+                .setNeutralButton(R.string.dialog_explain_ok, null);
+        // Create the AlertDialog object and return it
+        return builder.create();
     }
 }
 
@@ -235,6 +250,9 @@ public class MainActivity extends Activity implements View.OnClickListener, Seek
                 new OrderedColor(R.color.blue, 4),
                 new OrderedColor(R.color.brown, 5),
                 new OrderedColor(R.color.green, 6))));
+
+        ExplainGameDialog explainDiag = new ExplainGameDialog();
+        explainDiag.show(getFragmentManager(), "explanation");
     }
 
     @Override

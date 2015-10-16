@@ -6,10 +6,11 @@ import android.graphics.Paint;
 import android.util.DisplayMetrics;
 
 class Tag {
-    int outcome;
+    int diceFace;
     String label;
-    Tag(int outcome, String label) {
-        this.outcome = outcome;
+
+    Tag(int diceFace, String label) {
+        this.diceFace = diceFace;
         this.label = label;
     }
 }
@@ -24,14 +25,13 @@ class Resource {
     private final Bitmap icon_;
 
     private final int color_;
+    protected Tag tag_;
 
     Resource(DisplayMetrics dm, Bitmap icon, int color) {
         displayMetrics_ = dm;
         icon_ = icon;
         color_ = color;
     }
-
-    protected Tag tag_;
 
     Paint getFillPaint(boolean resourceGenerated) {
         Paint fill = new Paint();
@@ -76,12 +76,12 @@ class Resource {
         return text;
     }
 
-    public void setTag(Tag outcome) {
-        tag_ = outcome;
-    }
-
     Tag getTag() {
         return tag_;
+    }
+
+    public void setTag(Tag outcome) {
+        tag_ = outcome;
     }
 
     Bitmap getIcon() {

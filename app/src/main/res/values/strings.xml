@@ -16,4 +16,46 @@
     <string name="select_players">How many are playing? </string>
     <string name="classic">Classic</string>
     <string name="cities_and_knights">Cities &amp; Knights</string>
+    <string name="dialog_explain_steps">
+        This app will help you set up the board, keep track of turns and resource generation for you.
+        \n\nIn the next screen you will select the order of players and their colors.
+        Choosing more than five players will automatically enable the six player expansion.
+        \n\nYou can also choose a different game mode which allows partial(fairer) resource generation.
+        In this mode, each turn will comprise of multiple dice roll behind the scenes causing partial
+        resource generation with each dice roll. After a turn completes, whichever resources fill up
+        will be available from the bank.
+        \n\nLast but not the least you can also play the cities and knights expansion.</string>
+    <string name="dialoag_explain_title">How This App Works</string>
+    <string name="dialoag_board_title">What\'s On The Board?</string>
+    <string name="dialog_board_classic">
+        The next screen will track the game play and resource generation.
+        \n\nThe player whose turn is ongoing will be highlighted on the top of the screen.
+        \n\nThe board follows the catan color scheme. Red for brick, dark grey for ore,
+        dark green for lumber, light green for wool and yellow for grain. White represents desert.
+        In the set up phase all icons are visible, but during a turn only the icons for the
+        generated resources will show up.
+        \n\nPlease make sure to arrange your board exactly as shown in the screen with the lettered pieces
+        placed accordingly.
+        \n\nTapping anywhere on the screen will play the next turn
+        \n\nBack button will revert and forget the latest turn.
+    </string>
+    <string name="dialog_board_cities">
+        The next screen will track the game play and resource generation.
+        \n\nThe player whose turn is ongoing will be highlighted on the top of the screen.
+        \n\nThe board follows the catan color scheme. Red for brick, dark grey for ore,
+        dark green for lumber, light green for wool and yellow for grain. White represents desert.
+        In the set up phase all icons are visible, but during a turn only the icons for the
+        generated resources will show up.
+        \n\nPlease make sure to arrange your board exactly as shown in the screen with the lettered pieces
+        placed accordingly.
+        \n\nThe row below the players shows the commodity dice and the red dice and the row below
+        that shows the progress of the barbarians.
+        \n\nTapping anywhere on the screen will play the next turn
+        \n\nBack button will revert and forget the latest turn.</string>
+    <string name="dialog_board_ok">Let\'s Start!</string>
+    <string name="dialog_explain_ok">Got It.</string>
+    <string name="dialog_robber">Robber on the prowl!</string>
+    <string name="dialog_robber_ok">Shucks!</string>
+    <string name="dialog_barbarian">Barbarians Attacked!</string>
+    <string name="dialog_barbarian_ok">Run!</string>
 </resources>

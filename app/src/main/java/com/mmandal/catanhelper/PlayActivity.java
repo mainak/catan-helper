@@ -1,10 +1,35 @@
 package com.mmandal.catanhelper;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.view.View;
 
 import java.util.List;
+
+@SuppressLint("ValidFragment")
+class BoardLayoutDialog extends DialogFragment {
+
+    private int dialogId_;
+
+    BoardLayoutDialog(int dialogId) {
+        dialogId_ = dialogId;
+    }
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.dialoag_board_title)
+                .setMessage(dialogId_)
+                .setNeutralButton(R.string.dialog_board_ok, null);
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
+}
 
 /**
  * Created by mmandal on 10/3/15.
@@ -17,10 +42,11 @@ public class PlayActivity extends Activity implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        int numRolls = getIntent().getIntExtra("num_rolls", 100);
-        List<Integer> playerColors = getIntent().getIntegerArrayListExtra("player_colors");
+        final int numRolls = getIntent().getIntExtra("num_rolls", 100);
+        final List<Integer> playerColors = getIntent().getIntegerArrayListExtra("player_colors");
+        final int gameType = getIntent().getIntExtra("game_type", R.id.cf_classic);
         Expansion expansion =
-                getIntent().getIntExtra("game_type", R.id.cf_classic) == R.id.cf_classic
+                gameType == R.id.cf_classic
                 ? new DefaultExpansion(this)
                 : new CitiesAndKnights(this);
 
@@ -32,6 +58,11 @@ public class PlayActivity extends Activity implements View.OnClickListener {
         board_.initialize();
         board_.setOnClickListener(this);
         setContentView(board_);
+
+        int dialogId = gameType == R.id.cf_classic ?
+                R.string.dialog_board_classic : R.string.dialog_board_cities;
+        DialogFragment boardDialog = new BoardLayoutDialog(dialogId);
+        boardDialog.show(getFragmentManager(), "board_layout");
     }
 
 
@@ -49,6 +80,9 @@ public class PlayActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         board_.roll();
+        for (DialogFragment dialog : board_.getSpecialEvents()) {
+            dialog.show(getFragmentManager(), "special");
+        }
         board_.invalidate();
     }
 }
