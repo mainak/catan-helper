@@ -122,6 +122,7 @@ class PlayerOption implements Spinner.OnItemSelectedListener {
         ColorListAdapter adapter = (ColorListAdapter) parent.getAdapter();
         OrderedColor color = (OrderedColor) adapter.getItem(position);
         Log.d(TAG, "Selected color " + color.getOrder() + " for player " + playerPos_);
+        spinner_.setBackgroundColor(color.color);
         if (view != null) {
             TextView tv = (TextView) view.findViewById(R.id.cp_row_item);
             tv.setText("Player " + playerPos_);
