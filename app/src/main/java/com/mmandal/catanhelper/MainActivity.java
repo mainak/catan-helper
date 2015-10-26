@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -36,7 +37,9 @@ class OrderedColor implements Comparable<OrderedColor> {
         order_ = order;
     }
 
-    int getOrder() { return order_; }
+    int getOrder() {
+        return order_;
+    }
 
     @Override
     public int compareTo(OrderedColor another) {
@@ -122,7 +125,7 @@ class PlayerOption implements Spinner.OnItemSelectedListener {
         ColorListAdapter adapter = (ColorListAdapter) parent.getAdapter();
         OrderedColor color = (OrderedColor) adapter.getItem(position);
         Log.d(TAG, "Selected color " + color.getOrder() + " for player " + playerPos_);
-        spinner_.setBackgroundColor(color.color);
+        //       spinner_.setBackgroundColor(color.color);
         if (view != null) {
             TextView tv = (TextView) view.findViewById(R.id.cp_row_item);
             tv.setText("Player " + playerPos_);
@@ -276,7 +279,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Seek
     public void onProgressChanged(SeekBar seekBar, int numRolls, boolean fromUser) {
         numRolls_ = numRolls + 1;
         TextView disp = (TextView) findViewById(R.id.cf_num_rolls_disp);
-        disp.setText(Integer.toString(numRolls_));
+        disp.setText(String.format("%2d", numRolls_));
         disp.invalidate();
     }
 
