@@ -9,12 +9,16 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,12 +30,45 @@ import java.util.Vector;
 
 @SuppressLint("ValidFragment")
 class RobberActivatedDialog extends DialogFragment {
+    private static final String TAG = RobberActivatedDialog.class.getSimpleName();
+
+    private final Context ctxt_;
+
+    private final MediaPlayer robberSoundPlayer_;
+
+    RobberActivatedDialog(Context ctxt, MediaPlayer robberSoundPlayer) {
+        ctxt_ = ctxt;
+        robberSoundPlayer_ = robberSoundPlayer;
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        TextView msg = new TextView(ctxt_);
+        msg.setText(R.string.dialog_robber);
+        msg.setPadding(10, 10, 10, 10);
+        msg.setGravity(Gravity.CENTER);
+        msg.setTextSize(18);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.dialog_robber)
+        builder.setView(msg)
                 .setNeutralButton(R.string.dialog_robber_ok, null);
         return builder.create();
+    }
+
+    @Override
+    public void onStart()  {
+        robberSoundPlayer_.start();
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        try {
+            robberSoundPlayer_.stop();
+            robberSoundPlayer_.prepare();
+        } catch (IOException e) {
+            Log.d(TAG, e.getMessage());
+        }
     }
 }
 
@@ -48,19 +85,21 @@ abstract class Board extends View {
     protected List<Hexagon> cells_ = new Vector<Hexagon>();
     private int numTurns_ = 0;
     private LinkedList<Update> pastUpdates_ = new LinkedList<Update>();
+    private final MediaPlayer robberSoundPlayer_;
 
     Board(Context ctxt, List<Integer> playerColors, int maxNumRolls, Expansion expansion) {
         super(ctxt);
         players_ = new PlayerListView(getContext(), playerColors);
         expansion_ = expansion;
         maxNumRolls_ = maxNumRolls;
+        robberSoundPlayer_ = MediaPlayer.create(getContext(), R.raw.robber);
     }
 
     public List<DialogFragment> getSpecialEvents() {
         List<DialogFragment> dialogs = expansion_.getSpecialEvents();
         for (Hexagon cell : cells_) {
             if (cell.getDiceFace() == 7 && cell.resourceGenerated()) {
-                dialogs.add(new RobberActivatedDialog());
+                dialogs.add(new RobberActivatedDialog(getContext(), robberSoundPlayer_));
                 break;
             }
         }

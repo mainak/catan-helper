@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 
@@ -38,6 +39,8 @@ public class PlayActivity extends Activity implements View.OnClickListener {
 
     Board board_;
 
+    MediaPlayer rollSoundPlayer_;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +66,8 @@ public class PlayActivity extends Activity implements View.OnClickListener {
                 R.string.dialog_board_classic : R.string.dialog_board_cities;
         DialogFragment boardDialog = new BoardLayoutDialog(dialogId);
         boardDialog.show(getFragmentManager(), "board_layout");
+
+        rollSoundPlayer_ = MediaPlayer.create(this, R.raw.roll);
     }
 
 
@@ -79,6 +84,7 @@ public class PlayActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
+        rollSoundPlayer_.start();
         board_.roll();
         for (DialogFragment dialog : board_.getSpecialEvents()) {
             dialog.show(getFragmentManager(), "special");

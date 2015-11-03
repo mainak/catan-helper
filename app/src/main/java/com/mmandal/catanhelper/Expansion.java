@@ -11,9 +11,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -58,12 +63,45 @@ class DefaultExpansion extends Expansion {
 
 @SuppressLint("ValidFragment")
 class BarbarianAttackDialog extends DialogFragment {
+    private static final String TAG = BarbarianAttackDialog.class.getSimpleName();
+
+    private final Context ctxt_;
+
+    private final MediaPlayer barbarianSoundPlayer_;
+
+    BarbarianAttackDialog(Context ctxt, MediaPlayer barbarianSoundPlayer) {
+        ctxt_ = ctxt;
+        barbarianSoundPlayer_ = barbarianSoundPlayer;
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        TextView msg = new TextView(ctxt_);
+        msg.setText(R.string.dialog_barbarian);
+        msg.setPadding(10, 10, 10, 10);
+        msg.setGravity(Gravity.CENTER);
+        msg.setTextSize(18);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.dialog_barbarian)
+        builder.setView(msg)
                 .setNeutralButton(R.string.dialog_barbarian_ok, null);
         return builder.create();
+    }
+
+    @Override
+    public void onStart()  {
+        barbarianSoundPlayer_.start();
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        try {
+            barbarianSoundPlayer_.stop();
+            barbarianSoundPlayer_.prepare();
+        } catch (IOException e) {
+            Log.d(TAG, e.getMessage());
+        }
     }
 }
 
@@ -88,11 +126,14 @@ class CitiesAndKnights extends Expansion {
 
     private List<RectF> barbarians_ = new Vector<RectF>();
 
+    private final MediaPlayer barbarianSoundPlayer_;
+
     CitiesAndKnights(Context context) {
         super(context);
         castle_ = Utility.getIcon(getResources(), R.drawable.castle);
         fire_ = Utility.getIcon(getResources(), R.drawable.fire);
         ship_ = Utility.getIcon(getResources(), R.drawable.ship);
+        barbarianSoundPlayer_ = MediaPlayer.create(getContext(), R.raw.barbarians);
     }
 
     @Override
@@ -309,7 +350,8 @@ class CitiesAndKnights extends Expansion {
     public List<DialogFragment> getSpecialEvents() {
         List<DialogFragment> dialogs = new LinkedList<DialogFragment>();
         if (barbarians_.size() - 1 == currState_.shipPos) {
-            dialogs.add(new BarbarianAttackDialog());
+            dialogs.add(new BarbarianAttackDialog(getContext(),
+                    barbarianSoundPlayer_));
         }
         return dialogs;
     }
