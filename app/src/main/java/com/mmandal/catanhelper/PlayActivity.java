@@ -5,8 +5,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.gesture.Gesture;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v4.view.GestureDetectorCompat;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.List;
@@ -35,11 +40,15 @@ class BoardLayoutDialog extends DialogFragment {
 /**
  * Created by mmandal on 10/3/15.
  */
-public class PlayActivity extends Activity implements View.OnClickListener {
+public class PlayActivity extends Activity {
 
-    Board board_;
+    private Board board_;
 
-    MediaPlayer rollSoundPlayer_;
+    private MediaPlayer rollSoundPlayer_;
+
+    private GestureDetectorCompat detector_;
+
+    private boolean exitConfirmed_ = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,7 +68,6 @@ public class PlayActivity extends Activity implements View.OnClickListener {
             board_ = new SixPlayerBoard(this, playerColors, numRolls, expansion);
         }
         board_.initialize();
-        board_.setOnClickListener(this);
         setContentView(board_);
 
         int dialogId = gameType == R.id.cf_classic ?
@@ -68,27 +76,61 @@ public class PlayActivity extends Activity implements View.OnClickListener {
         boardDialog.show(getFragmentManager(), "board_layout");
 
         rollSoundPlayer_ = MediaPlayer.create(this, R.raw.roll);
+        detector_ = new GestureDetectorCompat(this, new PlayGestureListener());
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        detector_.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
 
     @Override
     public void onBackPressed() {
-        if (board_ != null) {
-            if (board_.revert()) {
-                board_.invalidate();
-                return;
-            }
+        if (exitConfirmed_) {
+            super.onBackPressed();
+            return;
         }
-        super.onBackPressed();
+
+        final PlayActivity thisPlayActivity = this;
+        new AlertDialog.Builder(this)
+                .setMessage("This will end the game. Are you sure?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        thisPlayActivity.exitConfirmed_ = true;
+                        thisPlayActivity.onBackPressed();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
-    @Override
-    public void onClick(View v) {
-        rollSoundPlayer_.start();
-        board_.roll();
-        for (DialogFragment dialog : board_.getSpecialEvents()) {
-            dialog.show(getFragmentManager(), "special");
+    class PlayGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final String DEBUG_TAG = "Gestures";
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            rollSoundPlayer_.start();
+            board_.roll();
+            for (DialogFragment dialog : board_.getSpecialEvents()) {
+                dialog.show(getFragmentManager(), "special");
+            }
+            board_.invalidate();
+            return true;
         }
-        board_.invalidate();
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            float distanceX = e2.getX() - e1.getX();
+            if (distanceX < 50) {
+                return false;
+            }
+
+            if (board_ != null && board_.revert()) {
+                board_.invalidate();
+            }
+            return true;
+        }
     }
 }

@@ -37,7 +37,7 @@
         \n\nPlease make sure to arrange your board exactly as shown in the screen with the lettered pieces
         placed accordingly.
         \n\nTapping anywhere on the screen will play the next turn
-        \n\nBack button will revert and forget the latest turn.
+        \n\nSwiping right will revert and forget the latest turn.
     </string>
     <string name="dialog_board_cities">
         The next screen will track the game play and resource generation.
@@ -51,7 +51,7 @@
         \n\nThe row below the players shows the commodity dice and the red dice and the row below
         that shows the progress of the barbarians.
         \n\nTapping anywhere on the screen will play the next turn
-        \n\nBack button will revert and forget the latest turn.</string>
+        \n\nSwiping right will revert and forget the latest turn.</string>
     <string name="dialog_board_ok">Let\'s Start!</string>
     <string name="dialog_explain_ok">Got It.</string>
     <string name="dialog_robber">Robber on the prowl!</string>
