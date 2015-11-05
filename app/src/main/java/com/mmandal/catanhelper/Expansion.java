@@ -89,6 +89,7 @@ class BarbarianAttackDialog extends DialogFragment {
 
     @Override
     public void onStart()  {
+        barbarianSoundPlayer_.seekTo(0);
         barbarianSoundPlayer_.start();
         super.onStart();
     }

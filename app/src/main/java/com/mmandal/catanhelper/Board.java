@@ -56,6 +56,7 @@ class RobberActivatedDialog extends DialogFragment {
 
     @Override
     public void onStart()  {
+        robberSoundPlayer_.seekTo(0);
         robberSoundPlayer_.start();
         super.onStart();
     }
@@ -80,19 +81,18 @@ abstract class Board extends View {
 
     protected final Random rand_ = new Random();
     protected final PlayerListView players_;
-    protected final int maxNumRolls_;
     private final Expansion expansion_;
     protected List<Hexagon> cells_ = new Vector<Hexagon>();
-    private int numTurns_ = 0;
     private LinkedList<Update> pastUpdates_ = new LinkedList<Update>();
     private final MediaPlayer robberSoundPlayer_;
+    private final DiceRoller roller_;
 
     Board(Context ctxt, List<Integer> playerColors, int maxNumRolls, Expansion expansion) {
         super(ctxt);
         players_ = new PlayerListView(getContext(), playerColors);
         expansion_ = expansion;
-        maxNumRolls_ = maxNumRolls;
         robberSoundPlayer_ = MediaPlayer.create(getContext(), R.raw.robber);
+        roller_ = new DiceRoller(maxNumRolls);
     }
 
     public List<DialogFragment> getSpecialEvents() {
@@ -124,13 +124,7 @@ abstract class Board extends View {
 
     protected Update genNextUpdate() {
         Update update = new Update();
-        for (int outcome = 0; outcome < 13; ++outcome) {
-            update.numRolls[outcome] = 0;
-        }
-        for (int i = 0; i < maxNumRolls_; ++i) {
-            int roll = rand_.nextInt(6) + rand_.nextInt(6) + 2;
-            ++update.numRolls[roll];
-        }
+        update.chosenFace = roller_.getNextRoll();
         return expansion_.genNextUpdate(update);
     }
 
@@ -139,10 +133,13 @@ abstract class Board extends View {
     }
 
     private void applyUpdate(Update update) {
-        ++numTurns_;
         players_.forward();
         for (Hexagon cell : cells_) {
-            cell.add(update.numRolls[cell.getDiceFace()]);
+            if (cell.getDiceFace() == update.chosenFace) {
+                cell.rollForward(true);
+            } else {
+                cell.rollForward(false);
+            }
         }
         expansion_.apply(update);
         pastUpdates_.push(update);
@@ -152,10 +149,13 @@ abstract class Board extends View {
         Update update = pastUpdates_.pop();
         expansion_.apply(pastUpdates_.peek());
         for (Hexagon cell : cells_) {
-            cell.subtract(update.numRolls[cell.getDiceFace()]);
+            if (cell.getDiceFace() == update.chosenFace) {
+                cell.rollBackward(true);
+            } else {
+                cell.rollBackward(false);
+            }
         }
         players_.backward();
-        --numTurns_;
         return update;
     }
 
@@ -208,10 +208,9 @@ abstract class Board extends View {
     }
 
     protected static class Update {
-        int[] numRolls = new int[13];
-
+        int chosenFace;
         public void copy(Update bUpd) {
-            numRolls = bUpd.numRolls;
+            chosenFace = bUpd.chosenFace;
         }
     }
 }
@@ -331,7 +330,7 @@ class FourPlayerBoard extends Board {
                 tag = diceFacesIter.next();
             }
             resource.setTag(tag);
-            cells_.add(new Hexagon(getContext(), maxNumRolls_, resource));
+            cells_.add(new Hexagon(getContext(), resource));
         }
     }
 }
@@ -478,7 +477,7 @@ class SixPlayerBoard extends Board {
                 tag = diceFacesIter.next();
             }
             resource.setTag(tag);
-            cells_.add(new Hexagon(getContext(), maxNumRolls_, resource));
+            cells_.add(new Hexagon(getContext(), resource));
         }
     }
 }

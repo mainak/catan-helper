@@ -277,7 +277,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Seek
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int numRolls, boolean fromUser) {
-        numRolls_ = numRolls + 1;
+        numRolls_ = (int) Math.pow(2, numRolls);
         TextView disp = (TextView) findViewById(R.id.cf_num_rolls_disp);
         disp.setText(String.format("%2d", numRolls_));
         disp.invalidate();

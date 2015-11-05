@@ -15,21 +15,15 @@ import android.view.View;
  */
 class Hexagon extends View {
     private static final String TAG = Hexagon.class.getSimpleName();
-    private final int maxNumRolls_;
     private final Resource resource_;
     private Path boundary_ = new Path();
     private Rect iconBounds_ = new Rect();
+    private Point textCenter_ = new Point();
+    private int numTurns_ = 0;
     private boolean resourceGenerated_ = false;
 
-    private int numRolls_ = 0;
-
-    private Point textCenter_ = new Point();
-
-    private int numTurns_ = 0;
-
-    Hexagon(Context context, int maxNumRolls, Resource resource) {
+    Hexagon(Context context, Resource resource) {
         super(context);
-        maxNumRolls_ = maxNumRolls;
         resource_ = resource;
     }
 
@@ -41,7 +35,7 @@ class Hexagon extends View {
         path.lineTo(leftTop.x + width,         leftTop.y + height / 2);
         path.lineTo(leftTop.x + 3 * width / 4, leftTop.y + height);
         path.lineTo(leftTop.x + width / 4, leftTop.y + height);
-        path.lineTo(leftTop.x,                 leftTop.y + height / 2);
+        path.lineTo(leftTop.x, leftTop.y + height / 2);
         path.close();
         return path;
     }
@@ -68,25 +62,14 @@ class Hexagon extends View {
         textCenter_ = new Point(left + width / 2, top + height / 2);
     }
 
-    void add(int numHits) {
-        assert numHits <= maxNumRolls_;
+    void rollForward(boolean resourceGenrated) {
+        resourceGenerated_ = resourceGenrated;
         ++numTurns_;
-        resourceGenerated_ = false;
-        numRolls_ += numHits;
-        if (numRolls_ >= maxNumRolls_) {
-            resourceGenerated_ = true;
-            numRolls_ -= maxNumRolls_;
-        }
     }
 
-    void subtract(int numHits) {
-        assert numHits <= maxNumRolls_;
+    void rollBackward(boolean resourceGenrated) {
+        resourceGenerated_ = resourceGenrated;
         --numTurns_;
-        resourceGenerated_ = false;
-        numRolls_ -= numHits;
-        if (numRolls_ < 0) {
-            numRolls_ += maxNumRolls_;
-        }
     }
 
     @Override
