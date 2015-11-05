@@ -90,8 +90,16 @@ class Hexagon extends View {
         canvas.drawPath(boundary_, resource_.getFillPaint(false));
         canvas.drawPath(boundary_, resource_.getBorderPaint());
         canvas.drawBitmap(resource_.getIcon(), null, iconBounds_, new Paint());
-        canvas.drawText(resource_.getTag().label, textCenter_.x + 3, textCenter_.y + 3, resource_.getShadowPaint(resourceGenerated_));
-        canvas.drawText(resource_.getTag().label, textCenter_.x, textCenter_.y, resource_.getTextPaint(resourceGenerated_));
+
+        Paint shadowPaint = resource_.getShadowPaint(true);
+        int shadowX = 2 + textCenter_.x;
+        int shadowY = 2 + (int)(textCenter_.y - ((shadowPaint.descent() + shadowPaint.ascent()) / 2));
+        canvas.drawText(resource_.getTag().label, shadowX, shadowY, shadowPaint);
+
+        Paint textPaint = resource_.getTextPaint(true);
+        int textX = textCenter_.x;
+        int textY = (int)(textCenter_.y - ((textPaint.descent() + textPaint.ascent()) / 2));
+        canvas.drawText(resource_.getTag().label, textX, textY, textPaint);
     }
 
     void onDrawGamePlay(Canvas canvas) {
@@ -101,14 +109,31 @@ class Hexagon extends View {
         if (resourceGenerated_) {
             canvas.drawPath(boundary_, resource_.getFillPaint(true));
             canvas.drawPath(boundary_, resource_.getBorderPaint());
-            canvas.drawOval(new RectF(iconBounds_), resource_.getOvalPaint2());
-            canvas.drawOval(new RectF(iconBounds_), resource_.getOvalPaint());
+
             canvas.drawBitmap(resource_.getIcon(), null, iconBounds_, new Paint());
+
+            Paint shadowPaint = resource_.getShadowPaint(true);
+            int shadowX = 2 + textCenter_.x;
+            int shadowY = 2 + (int)(textCenter_.y - ((shadowPaint.descent() + shadowPaint.ascent()) / 2));
+            canvas.drawText(Integer.toString(getDiceFace()), shadowX, shadowY, shadowPaint);
+
+            Paint textPaint = resource_.getTextPaint(true);
+            int textX = textCenter_.x;
+            int textY = (int)(textCenter_.y - ((textPaint.descent() + textPaint.ascent()) / 2));
+            canvas.drawText(Integer.toString(getDiceFace()), textX, textY, textPaint);
         } else {
             canvas.drawPath(boundary_, resource_.getFillPaint(false));
             canvas.drawPath(boundary_, resource_.getBorderPaint());
-            canvas.drawText(resource_.getTag().label, textCenter_.x + 3, textCenter_.y + 3, resource_.getShadowPaint(false));
-            canvas.drawText(resource_.getTag().label, textCenter_.x, textCenter_.y, resource_.getTextPaint(false));
+
+            Paint shadowPaint = resource_.getShadowPaint(false);
+            int shadowX = 1 + textCenter_.x;
+            int shadowY = 1 + (int)(textCenter_.y - ((shadowPaint.descent() + shadowPaint.ascent()) / 2));
+            canvas.drawText(resource_.getTag().label, shadowX, shadowY, shadowPaint);
+
+            Paint textPaint = resource_.getTextPaint(false);
+            int textX = textCenter_.x;
+            int textY = (int)(textCenter_.y - ((textPaint.descent() + textPaint.ascent()) / 2));
+            canvas.drawText(resource_.getTag().label, textX, textY, textPaint);
         }
     }
 
