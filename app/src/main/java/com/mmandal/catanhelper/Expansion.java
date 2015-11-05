@@ -224,9 +224,9 @@ class CitiesAndKnights extends Expansion {
         }
 
         if (currState_.roll != RollType.BARBARIAN) {
-            drawDice(canvas, currState_.number, true /* visible */);
+            drawDice(canvas, currState_.redDiceFace, true /* visible */);
         } else {
-            drawDice(canvas, currState_.number, false /* visible */);
+            drawDice(canvas, currState_.redDiceFace, false /* visible */);
         }
 
         switch (currState_.roll) {
@@ -283,7 +283,7 @@ class CitiesAndKnights extends Expansion {
         spt.setColor(Color.WHITE);
         spt.setStyle(Paint.Style.FILL);
         spt.setStrokeWidth(Utility.fromDp(getResources().getDisplayMetrics(), 4));
-        for (PointF p : diceFaces_.get(number)) {
+        for (PointF p : diceFaces_.get(number - 1)) {
             canvas.drawPoint(p.x, p.y, pt);
             canvas.drawPoint(p.x, p.y, spt);
         }
@@ -332,7 +332,7 @@ class CitiesAndKnights extends Expansion {
 
         Update update = new Update();
         update.copy(bUpd);
-        update.number = rand.nextInt(6);
+        update.redDiceFace = 1 + rand.nextInt(Math.min(update.chosenFace - 1, 6));
         update.roll = roll;
         update.shipPos = 0;
         if (currState_ != null) {
@@ -366,7 +366,7 @@ class CitiesAndKnights extends Expansion {
 
     private static class Update extends Board.Update {
         RollType roll;
-        int number;
+        int redDiceFace;
         int shipPos;
     }
 }
