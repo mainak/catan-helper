@@ -21,4 +21,5 @@
     <color name="dice_red">#ed0000</color>
     <color name="barbarian">#848484</color>
     <color name="unselected">#000000</color>
+    <color name="dice_yellow">#f1fd04</color>
 </resources>

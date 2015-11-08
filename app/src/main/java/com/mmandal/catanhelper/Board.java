@@ -86,6 +86,8 @@ abstract class Board extends View {
     private LinkedList<Update> pastUpdates_ = new LinkedList<Update>();
     private final MediaPlayer robberSoundPlayer_;
     private final DiceRoller roller_;
+    private Dice yellowDice_;
+    private Dice redDice_;
 
     Board(Context ctxt, List<Integer> playerColors, int maxNumRolls, Expansion expansion) {
         super(ctxt);
@@ -93,6 +95,8 @@ abstract class Board extends View {
         expansion_ = expansion;
         robberSoundPlayer_ = MediaPlayer.create(getContext(), R.raw.robber);
         roller_ = new DiceRoller(maxNumRolls);
+        yellowDice_ = new NumberDice(getContext(), R.color.dice_yellow);
+        redDice_ = new NumberDice(getContext(), R.color.dice_red);
     }
 
     public List<DialogFragment> getSpecialEvents() {
@@ -112,8 +116,25 @@ abstract class Board extends View {
 
     @Override
     public void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        players_.layout(left + (int) fromDp(10) , top + (int) fromDp(10), right - (int) fromDp(10), top + (int) fromDp(30));
-        expansion_.layout(left + (int) fromDp(10), top + (int) fromDp(50), right - (int) fromDp(10), top + (int) fromDp(150));
+        int padding = (int) fromDp(20);
+        int playerLineHeigt = (int) fromDp(20);
+        int diceLineHeight = (int) fromDp(40);
+        int expansionHeight = (int) fromDp(60);
+        players_.layout(left + padding , top + padding, right - padding, top + padding + playerLineHeigt);
+        int diceRadius = diceLineHeight / 2;
+        Dice expDice = expansion_.getExtraDice();
+        int centerStride = (right - left) / (2 + (null == expDice ? 0 : 1) + 1);
+        Point diceCenter = new Point(centerStride, top + playerLineHeigt + (2 * padding) + diceLineHeight / 2);
+        yellowDice_.layout(diceCenter.x - diceRadius, diceCenter.y - diceRadius, diceCenter.x + diceRadius, diceCenter.y + diceRadius);
+        diceCenter.x += centerStride;
+        redDice_.layout(diceCenter.x - diceRadius, diceCenter.y - diceRadius, diceCenter.x + diceRadius, diceCenter.y + diceRadius);
+        diceCenter.x += centerStride;
+        if (null != expDice) {
+            expDice.layout(diceCenter.x - diceRadius, diceCenter.y - diceRadius, diceCenter.x + diceRadius, diceCenter.y + diceRadius);
+            diceCenter.x += centerStride;
+        }
+        expansion_.layout(padding, top + 3 * padding + playerLineHeigt + diceLineHeight, right - padding,
+                top + 3 * padding + playerLineHeigt + diceLineHeight + expansionHeight);
     }
 
     void initialize() {
@@ -125,6 +146,12 @@ abstract class Board extends View {
     protected Update genNextUpdate() {
         Update update = new Update();
         update.chosenFace = roller_.getNextRoll();
+        update.redDiceFace = Math.max(update.chosenFace - 6, 1);
+        int randRange = Math.min(update.chosenFace - 1, 6) - Math.max(update.chosenFace - 6, 1);
+        if (randRange > 0) {
+            update.redDiceFace += rand_.nextInt(randRange);
+        }
+        update.yellowDiceFace = update.chosenFace - update.redDiceFace;
         return expansion_.genNextUpdate(update);
     }
 
@@ -133,6 +160,8 @@ abstract class Board extends View {
     }
 
     private void applyUpdate(Update update) {
+        yellowDice_.setNumber(update.yellowDiceFace);
+        redDice_.setNumber(update.redDiceFace);
         players_.forward();
         for (Hexagon cell : cells_) {
             if (cell.getDiceFace() == update.chosenFace) {
@@ -147,7 +176,12 @@ abstract class Board extends View {
 
     private Update revertUpdate() {
         Update update = pastUpdates_.pop();
-        expansion_.apply(pastUpdates_.peek());
+        Update lastUpdateToApply = pastUpdates_.peek();
+        if (lastUpdateToApply == null) {
+            redDice_.disable();
+            yellowDice_.disable();
+        }
+        expansion_.apply(lastUpdateToApply);
         for (Hexagon cell : cells_) {
             if (cell.getDiceFace() == update.chosenFace) {
                 cell.rollBackward(true);
@@ -186,6 +220,12 @@ abstract class Board extends View {
     public void onDraw(Canvas canvas) {
         setBackgroundColor(Color.BLACK);
         players_.draw(canvas);
+        yellowDice_.draw(canvas);
+        redDice_.draw(canvas);
+        Dice expDice = expansion_.getExtraDice();
+        if (null != expDice) {
+            expDice.draw(canvas);
+        }
         expansion_.draw(canvas);
         for (Hexagon cell : cells_) {
             if (!cell.resourceGenerated()) {
@@ -209,8 +249,13 @@ abstract class Board extends View {
 
     protected static class Update {
         int chosenFace;
+        int yellowDiceFace;
+        int redDiceFace;
+
         public void copy(Update bUpd) {
             chosenFace = bUpd.chosenFace;
+            yellowDiceFace = bUpd.yellowDiceFace;
+            redDiceFace = bUpd.redDiceFace;
         }
     }
 }
